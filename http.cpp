@@ -89,7 +89,7 @@ Client::Client(string server_ip, short server_port) {
 	int ws = WSAStartup(MAKEWORD(2, 2), &wsdata);
 	if (ws != 0)
 	{
-		cerr << "ERROR in initialize";
+		std::cerr << "ERROR in initialize";
 		return;
 	}
 
