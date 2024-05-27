@@ -1,4 +1,4 @@
-#include "Http.h"
+#include "http.h"
 
 char* str2char(string str);
 
@@ -84,7 +84,7 @@ void Response::SetResponseMessage(char* msg) {
  *********************/
 
 Client::Client(string server_ip, short server_port) {
-	//¸ü¤JWinsock°ÊºA¨ç¦¡®w
+	//è¼‰å…¥Winsockå‹•æ…‹å‡½å¼åº«
 	WSADATA wsdata;
 	int ws = WSAStartup(MAKEWORD(2, 2), &wsdata);
 	if (ws != 0)
@@ -93,7 +93,7 @@ Client::Client(string server_ip, short server_port) {
 		return;
 	}
 
-	//«Ø¥ßserver¦a§}¸ê°T
+	//å»ºç«‹serveråœ°å€è³‡è¨Š
 	server_addr_.sin_family = AF_INET;
 	server_addr_.sin_port = htons(server_port);
 	char* ip = str2char(server_ip);
@@ -106,27 +106,27 @@ Client::~Client() {
 }
 
 Result Client::Get(string route) {
-	//«Ø¥ß½Ğ¨D°T®§
+	//å»ºç«‹è«‹æ±‚è¨Šæ¯
 	Request request;
 	request.start_line = "GET " + route + " HTTP/1.1";
 	request.header_fields["Host"] = "example.com";
 	request.message_body = "";
 	char* req_msg = request.GetRequestMessage();
 
-	//¶Ç°e¨Ã±µ¦¬°T®§
+	//å‚³é€ä¸¦æ¥æ”¶è¨Šæ¯
 	Result result = TransmitMessage(req_msg);
 
-	//ÄÀ©ñ¸ê·½
+	//é‡‹æ”¾è³‡æº
 	delete[] req_msg;
 
 	return result;
 }
 
 Result Client::Post(string route, json msg_body_json) {
-	//±Njson¸ê®ÆÂà¬°¦r¦ê
+	//å°‡jsonè³‡æ–™è½‰ç‚ºå­—ä¸²
 	string msg_body_str = msg_body_json.dump();
 
-	//«Ø¥ß½Ğ¨D°T®§
+	//å»ºç«‹è«‹æ±‚è¨Šæ¯
 	Request request;
 	request.start_line = "POST " + route + " HTTP/1.1";
 	request.header_fields["Host"] = "example.com";
@@ -136,27 +136,27 @@ Result Client::Post(string route, json msg_body_json) {
 	request.message_body = msg_body_str;
 	char* req_msg = request.GetRequestMessage();
 	
-	//¶Ç°e¨Ã±µ¦¬°T®§
+	//å‚³é€ä¸¦æ¥æ”¶è¨Šæ¯
 	Result result = TransmitMessage(req_msg);
 
-	//ÄÀ©ñ¸ê·½
+	//é‡‹æ”¾è³‡æº
 	delete[] req_msg;
 
 	return result;
 }
 
 Result Client::TransmitMessage(char* req_msg) {
-	//«Ø¥ßªğ¦^°T®§
+	//å»ºç«‹è¿”å›è¨Šæ¯
 	Result result;
 
-	//«Ø¥ß client socket
+	//å»ºç«‹ client socket
 	SOCKET client = socket(PF_INET, SOCK_STREAM, 0);
 	if (client == INVALID_SOCKET) {
 		result.SetErrorMsg("Socket Create");
 		return result;
 	}
 
-	//¦øªA¾¹³s½u
+	//ä¼ºæœå™¨é€£ç·š
 	int con = connect(client, (sockaddr*)&server_addr_, sizeof(server_addr_));
 	if (con != 0) {
 		closesocket(client);
@@ -164,7 +164,7 @@ Result Client::TransmitMessage(char* req_msg) {
 		return result;
 	}
 
-	//¶Ç°e°T®§
+	//å‚³é€è¨Šæ¯
 	int sendbytes = send(client, req_msg, strlen(req_msg), 0);
 	if (sendbytes == SOCKET_ERROR) {
 		closesocket(client);
@@ -172,8 +172,8 @@ Result Client::TransmitMessage(char* req_msg) {
 		return result;
 	}
 
-	//±µ¦¬°T®§
-	string resp_msg = ""; //Àx¦s¦^À³°T®§
+	//æ¥æ”¶è¨Šæ¯
+	string resp_msg = ""; //å„²å­˜å›æ‡‰è¨Šæ¯
 	int bufsize = 1024;
 	char* buffer = new char[1024];
 	while (1) {
@@ -192,7 +192,7 @@ Result Client::TransmitMessage(char* req_msg) {
 	}
 	delete[] buffer;
 
-	//±N±µ¦¬¨ìªº°T®§¼g¤Jresult
+	//å°‡æ¥æ”¶åˆ°çš„è¨Šæ¯å¯«å…¥result
 	buffer = str2char(resp_msg);
 	result->SetResponseMessage(buffer);
 	delete[] buffer;
@@ -205,7 +205,7 @@ Result Client::TransmitMessage(char* req_msg) {
  **********************/
 
 char* str2char(string str) {
-	int size = str.length() + 1; // +1 ¹w¯d¦r¦êµ²§ô¦r¤¸'\0'
+	int size = str.length() + 1; // +1 é ç•™å­—ä¸²çµæŸå­—å…ƒ'\0'
 	char* ret = new char[size];
 	strcpy_s(ret, size, str.c_str());
 	return ret;
